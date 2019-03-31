@@ -99,6 +99,11 @@ SRC_TEST_API_DIR := $(TOPDIR)prebuilts/sdk/test-api
 # Some specific paths to tools
 SRC_DROIDDOC_DIR := $(TOPDIR)build/make/tools/droiddoc
 
+# Mark some inputs as readonly
+ifdef TARGET_DEVICE_DIR
+  .KATI_READONLY := TARGET_DEVICE_DIR
+endif
+
 # Set up efficient math functions which are used in make.
 # Here since this file is included by envsetup as well as during build.
 include $(BUILD_SYSTEM)/math.mk
@@ -854,11 +859,6 @@ endif
 
 
 ifdef PRODUCT_SHIPPING_API_LEVEL
-  ifneq ($(call math_gt_or_eq,$(PRODUCT_SHIPPING_API_LEVEL),27),)
-    ifneq ($(TARGET_USES_MKE2FS),true)
-      $(error When PRODUCT_SHIPPING_API_LEVEL >= 27, TARGET_USES_MKE2FS must be true)
-    endif
-  endif
   ifneq ($(call numbers_less_than,$(PRODUCT_SHIPPING_API_LEVEL),$(BOARD_SYSTEMSDK_VERSIONS)),)
     $(error BOARD_SYSTEMSDK_VERSIONS ($(BOARD_SYSTEMSDK_VERSIONS)) must all be greater than or equal to PRODUCT_SHIPPING_API_LEVEL ($(PRODUCT_SHIPPING_API_LEVEL)))
   endif

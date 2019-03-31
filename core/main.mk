@@ -217,16 +217,10 @@ include build/make/core/pdk_config.mk
 #
 # -----------------------------------------------------------------
 # Enable dynamic linker and hidden API developer warnings for
-# userdebug, eng and non-REL builds
-ifneq ($(TARGET_BUILD_VARIANT),user)
+# eng builds
+ifeq ($(TARGET_BUILD_VARIANT),eng)
   ADDITIONAL_BUILD_PROPERTIES += ro.bionic.ld.warning=1 \
                                  ro.art.hiddenapi.warning=1
-else
-# Enable it for user builds as long as they are not final.
-ifneq ($(PLATFORM_VERSION_CODENAME),REL)
-  ADDITIONAL_BUILD_PROPERTIES += ro.bionic.ld.warning=1 \
-                                 ro.art.hiddenapi.warning=1
-endif
 endif
 
 ADDITIONAL_BUILD_PROPERTIES += ro.treble.enabled=${PRODUCT_FULL_TREBLE}
@@ -280,21 +274,20 @@ endif
 
 ## user/userdebug ##
 
-user_variant := $(filter user userdebug,$(TARGET_BUILD_VARIANT))
+user_variant := user
 enable_target_debugging := true
 tags_to_install :=
 ifneq (,$(user_variant))
   # Target is secure in user builds.
+  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
   ADDITIONAL_DEFAULT_PROPERTIES += security.perf_harden=1
 
   ifeq ($(user_variant),user)
-    ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
     ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=1
   endif
 
   ifeq ($(user_variant),userdebug)
     # Pick up some extra useful tools
-    ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
     tags_to_install += debug
   else
     # Disable debugging in plain user builds.
